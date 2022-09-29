@@ -1,0 +1,65 @@
+int buttonA = 8;
+int buttonB = 9;
+int num[] = {0,B1111001, B0100100, B0110000, B0011001, B0010010, B0000010, B1111000, B0000000, B0010000};
+int curnum = 1;
+long randomnum;
+bool lastButtonState[2];
+bool buttonState[2];
+long lastDebounceTime[2];
+
+void setup()
+{ //Serial.begin(9600);
+  randomSeed(analogRead(A0));
+  randomnum = random(1, 10);
+  DDRD = 0xFF;
+  PORTD = num[curnum];
+  pinMode(buttonA, INPUT_PULLUP);
+  pinMode(buttonB, INPUT_PULLUP);
+}
+
+void loop() {
+  int readA = digitalRead(buttonA);
+  int readB = digitalRead(buttonB);
+  //
+  if (readA != lastButtonState[0])    //A button
+    lastDebounceTime[0] = millis();
+  if (millis() - lastDebounceTime[0] > 50)
+  {
+    if (readA != buttonState[0])
+    {
+      buttonState[0] = readA;
+      if (buttonState[0] == 0)
+      { curnum++;
+        if (curnum > 9)
+        {
+          curnum = 1 ;
+        }
+        PORTD = num[curnum];
+      }
+    }
+  }
+  lastButtonState[0] = readA;
+  if (readB != lastButtonState[1])    //B button
+    lastDebounceTime[1] = millis();
+  if (millis() - lastDebounceTime[1] > 50)
+  {
+    if (readB != buttonState[1]) {
+      buttonState[1] = readB;
+      if (buttonState[1] == 0)
+      {
+        if (curnum == randomnum)
+        { PORTD = B1000000;
+          randomnum = random(1, 10);
+          curnum = 1;
+        }
+        else if (curnum > randomnum)
+          PORTD = B1000010;
+        else if (curnum < randomnum)
+          PORTD = B1000111;
+        delay (500);
+        PORTD = num[curnum];
+      }
+    }
+  }
+  lastButtonState[1] = readB;
+}
