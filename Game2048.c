@@ -22,6 +22,13 @@ int main()
         {
             for (int j = 0; j < 4; j++)
             {
+                int bottle = table[i][j];
+                for (int k = 0; k < 5; k++)
+                {
+                    if (bottle / 10 == 0)
+                        printf(" ");
+                    bottle /= 10;
+                }
                 printf("%d ", table[i][j]);
                 if (table[i][j] == 0)
                     ran = 1;
