@@ -44,8 +44,13 @@ void loop() {
     {
       for (int j = 0; j < 4; j++)
       {
+        int bottle = table[i][j];
+        for (int k = 0; k < 4; k++) {
+          if (bottle / 10 == 0)
+            OLED.print(" ");
+          bottle /= 10;
+        }
         OLED.print(table[i][j]);
-        OLED.print("   ");
         if (table[i][j] == 0)
           ran = 1;
         tube[i][j] = table[i][j];
@@ -223,18 +228,18 @@ void loop() {
         break;
       }
     }
-      while (table[x][y] != 0 && ran == 1 && same == 0)
-      {
-        x = random(4);
-        y = random(4);
-      }
-      table[x][y] = 2;
-    
+    while (table[x][y] != 0 && ran == 1 && same == 0)
+    {
+      x = random(4);
+      y = random(4);
+    }
+    table[x][y] = 2;
+
   }
   else if (win == 1)
   {
     OLED.clearDisplay();
-    OLED.setCursor(8,10);
+    OLED.setCursor(8, 10);
     OLED.println(" YOU WIN");
     OLED.print(" 2048 GAME.");
     OLED.display();
