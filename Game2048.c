@@ -2,36 +2,31 @@
 #include <ctype.h>
 #include <time.h>
 #include <stdlib.h>
+
 int main()
 {
-    int x = rand() % 4, y = rand() % 4; //initial random two 2 
+    int x = rand() % 4 + 1, y = rand() % 4 + 1; // initial random two 2
     srand(time(NULL));
-    int table[4][4] = {{0, 0, 0, 0},
-                       {0, 0, 0, 0},
-                       {0, 0, 0, 0},
-                       {0, 0, 0, 0}};
+    int table[6][6] = {0};
     table[x][y] = 2;
-    table[(x+rand())%4][(y+rand())%4] = 2;
-    int tube[4][4];
+    table[(x + rand()) % 4 + 1][(y + rand()) % 4 + 1] = 2;
+    int tube[6][6];
     int win = 0;
     int movable = 1;
     while (movable == 1 && win == 0)
     {
-        int ran = 0;
-        for (int i = 0; i < 4; i++) // printf
+        for (int i = 1; i < 5; i++) // printf
         {
-            for (int j = 0; j < 4; j++)
+            for (int j = 1; j < 5; j++)
             {
                 int bottle = table[i][j];
-                for (int k = 0; k < 5; k++)
+                for (int k = 1; k < 5; k++)
                 {
                     if (bottle / 10 == 0)
                         printf(" ");
                     bottle /= 10;
                 }
                 printf("%d ", table[i][j]);
-                if (table[i][j] == 0)
-                    ran = 1;
                 tube[i][j] = table[i][j];
             }
             printf("\n");
@@ -54,15 +49,15 @@ int main()
             continue;
         }
         movable = 0;
-        for (int i = 0; i < 4; i++) // check movable
+        for (int i = 1; i < 5; i++) // check movable
         {
-            for (int j = 0; j < 4; j++)
+            for (int j = 1; j < 5; j++)
             {
-                if (table[i][j] == 0 ||
-                    (table[i + 1][j] == table[i][j] && (i + 1) < 4) ||
-                    (table[i - 1][j] == table[i][j] && (i - 1) >= 0) ||
-                    (table[i][j + 1] == table[i][j] && (j + 1) < 4) ||
-                    (table[i][j - 1] == table[i][j] && (j - 1) >= 0))
+                if ((table[i][j] == 0) ||
+                    (table[i + 1][j] == table[i][j]) ||
+                    (table[i - 1][j] == table[i][j]) ||
+                    (table[i][j + 1] == table[i][j]) ||
+                    (table[i][j - 1] == table[i][j]))
                 {
                     movable = 1;
                     break;
@@ -71,13 +66,13 @@ int main()
         }
         if (kb == 'U') // Up
         {
-            for (int col = 0; col < 4; col++)
+            for (int col = 1; col < 5; col++)
             {
-                for (int cur = 0; cur < 4; cur++)
+                for (int cur = 1; cur < 5; cur++)
                 {
                     if (table[cur][col] == 0)
                     {
-                        for (int i = cur + 1; i < 4; i++)
+                        for (int i = cur + 1; i < 5; i++)
                         {
                             if (table[i][col] != 0)
                             {
@@ -89,7 +84,7 @@ int main()
                     }
                     if (table[cur][col] != 0)
                     {
-                        for (int i = cur + 1; i < 4; i++)
+                        for (int i = cur + 1; i < 5; i++)
                         {
                             if (table[i][col] == table[cur][col])
                             {
@@ -107,13 +102,13 @@ int main()
         }
         else if (kb == 'D') // Down
         {
-            for (int col = 0; col < 4; col++)
+            for (int col = 1; col < 5; col++)
             {
-                for (int cur = 3; cur >= 0; cur--)
+                for (int cur = 4; cur >= 1; cur--)
                 {
                     if (table[cur][col] == 0)
                     {
-                        for (int i = cur - 1; i >= 0; i--)
+                        for (int i = cur - 1; i >= 1; i--)
                         {
                             if (table[i][col] != 0)
                             {
@@ -125,7 +120,7 @@ int main()
                     }
                     if (table[cur][col] != 0)
                     {
-                        for (int i = cur - 1; i >= 0; i--)
+                        for (int i = cur - 1; i >= 1; i--)
                         {
                             if (table[i][col] == table[cur][col])
                             {
@@ -143,13 +138,13 @@ int main()
         }
         else if (kb == 'L') // Left
         {
-            for (int col = 0; col < 4; col++)
+            for (int col = 1; col < 5; col++)
             {
-                for (int cur = 0; cur < 4; cur++)
+                for (int cur = 1; cur < 5; cur++)
                 {
                     if (table[col][cur] == 0)
                     {
-                        for (int i = cur + 1; i < 4; i++)
+                        for (int i = cur + 1; i < 5; i++)
                         {
                             if (table[col][i] != 0)
                             {
@@ -161,7 +156,7 @@ int main()
                     }
                     if (table[col][cur] != 0)
                     {
-                        for (int i = cur + 1; i < 4; i++)
+                        for (int i = cur + 1; i < 5; i++)
                         {
                             if (table[col][i] == table[col][cur])
                             {
@@ -179,13 +174,13 @@ int main()
         }
         else if (kb == 'R') // Right
         {
-            for (int col = 0; col < 4; col++)
+            for (int col = 1; col < 5; col++)
             {
-                for (int cur = 3; cur >= 0; cur--)
+                for (int cur = 4; cur >= 1; cur--)
                 {
                     if (table[col][cur] == 0)
                     {
-                        for (int i = cur - 1; i >= 0; i--)
+                        for (int i = cur - 1; i >= 1; i--)
                         {
                             if (table[col][i] != 0)
                             {
@@ -197,7 +192,7 @@ int main()
                     }
                     if (table[col][cur] != 0)
                     {
-                        for (int i = cur - 1; i >= 0; i--)
+                        for (int i = cur - 1; i >= 1; i--)
                         {
                             if (table[col][i] == table[col][cur])
                             {
@@ -214,21 +209,30 @@ int main()
             }
         }
         int same = 1;
-        for(int i=0;i<4;i++)
+        for (int i = 1; i < 5; i++)
         {
-            for(int j=0;j<4;j++)
+            for (int j = 1; j < 5; j++)
             {
-                if(tube[i][j] != table[i][j])
+                if (tube[i][j] != table[i][j])
+                {
                     same = 0;
                     break;
+                }
             }
         }
-        while (table[x][y] != 0 && ran == 1 && same == 0)   // rand2
+        if (same == 0)
         {
-            x = rand() % 4;
-            y = rand() % 4;
+            x = rand() % 4 + 1;
+            y = rand() % 4 + 1;
+            while (table[x][y] != 0) // rand2
+            {
+                x = rand() % 4 + 1;
+                y = rand() % 4 + 1;
+                if (table[x][y] == 0)
+                    break;
+            }
+            table[x][y] = 2;
         }
-        table[x][y] = 2;
     }
     if (win == 1)
         printf("You win 2048 Game.");
