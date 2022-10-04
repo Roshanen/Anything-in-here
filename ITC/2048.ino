@@ -11,10 +11,11 @@ int table[4][4] = {{0, 0, 0, 0},
   {2, 2, 4, 0}
 };
 int tube[4][4] {0};
-int up = 4;
-int down = 5;
-int left = 6;
-int right = 7;
+int buzz = 11;
+int button[4] = {4, 5, 6, 7}; //Up, Down ,Left, Right
+int buttonState[4] = {0, 0, 0, 0};
+int lastState[4] = {0, 0, 0, 0};
+long lastTime[4] = {0, 0, 0, 0};
 int movable = 1;
 int win = 0;
 int x = 0;
@@ -24,10 +25,11 @@ int same = 1;
 void setup() {
   Serial.begin(115200);
   OLED.begin(SSD1306_SWITCHCAPVCC, 0x3c);
-  pinMode(up, INPUT);
-  pinMode(down, INPUT);
-  pinMode(left, INPUT);
-  pinMode(right, INPUT);
+  //pinMode(buzz,OUTPUT);
+  pinMode(button[0], INPUT);
+  pinMode(button[1], INPUT);
+  pinMode(button[2], INPUT);
+  pinMode(button[3], INPUT);
   randomSeed(analogRead(A0));
   OLED.clearDisplay();
   OLED.setTextColor(WHITE);
@@ -36,6 +38,7 @@ void setup() {
   OLED.println("2048 GAME");
 }
 void loop() {
+
   if (win == 0) {
     OLED.clearDisplay();
     OLED.setCursor(0, 0);
@@ -73,150 +76,163 @@ void loop() {
         }
       }
     }
-    int Up = digitalRead(up);
-    if (Up) // Up
+    for (int p = 0; p < 4; p++)
     {
-      Serial.println("dog");
-      for (int col = 0; col < 4; col++)
-      {
-        for (int cur = 0; cur < 4; cur++)
-        {
-          if (table[cur][col] == 0)
+      int reading = digitalRead(button[p]);
+      if (reading != lastState[p]) {
+        lastTime[p] = millis();
+      }
+      if (millis() - lastTime[p] > 50) {
+        if (reading != buttonState[p]) {
+          buttonState[p] = reading;
+          if (buttonState[0] == 1)
           {
-            for (int i = cur + 1; i < 4; i++)
+            tone(buzz, 2000, 100);
+            Serial.println("dog");
+            for (int col = 0; col < 4; col++)
             {
-              if (table[i][col] != 0)
+              for (int cur = 0; cur < 4; cur++)
               {
-                table[cur][col] = table[i][col];
-                table[i][col] = 0;
-                break;
+                if (table[cur][col] == 0)
+                {
+                  for (int i = cur + 1; i < 4; i++)
+                  {
+                    if (table[i][col] != 0)
+                    {
+                      table[cur][col] = table[i][col];
+                      table[i][col] = 0;
+                      break;
+                    }
+                  }
+                }
+                if (table[cur][col] != 0)
+                {
+                  for (int i = cur + 1; i < 4; i++)
+                  {
+                    if (table[i][col] == table[cur][col])
+                    {
+                      table[cur][col] *= 2;
+                      table[i][col] = 0;
+                      break;
+                    }
+                    else if (table[i][col] != table[cur][col] && table[i][col] != 0)
+                      break;
+                  }
+                }
               }
             }
           }
-          if (table[cur][col] != 0)
+          if (buttonState[1] == 1)
           {
-            for (int i = cur + 1; i < 4; i++)
+            tone(buzz, 2000, 100);
+            for (int col = 0; col < 4; col++)
             {
-              if (table[i][col] == table[cur][col])
+              for (int cur = 3; cur >= 0; cur--)
               {
-                table[cur][col] *= 2;
-                table[i][col] = 0;
-                break;
+                if (table[cur][col] == 0)
+                {
+                  for (int i = cur - 1; i >= 0; i--)
+                  {
+                    if (table[i][col] != 0)
+                    {
+                      table[cur][col] = table[i][col];
+                      table[i][col] = 0;
+                      break;
+                    }
+                  }
+                }
+                if (table[cur][col] != 0)
+                {
+                  for (int i = cur - 1; i >= 0; i--)
+                  {
+                    if (table[i][col] == table[cur][col])
+                    {
+                      table[cur][col] *= 2;
+                      table[i][col] = 0;
+                      break;
+                    }
+                    else if (table[i][col] != table[cur][col] && table[i][col] != 0)
+                      break;
+                  }
+                }
               }
-              else if (table[i][col] != table[cur][col] && table[i][col] != 0)
-                break;
+            }
+          }
+          if (buttonState[2] == 1)
+          {
+            tone(buzz, 2000, 100);
+            for (int col = 0; col < 4; col++)
+            {
+              for (int cur = 0; cur < 4; cur++)
+              {
+                if (table[col][cur] == 0)
+                {
+                  for (int i = cur + 1; i < 4; i++)
+                  {
+                    if (table[col][i] != 0)
+                    {
+                      table[col][cur] = table[col][i];
+                      table[col][i] = 0;
+                      break;
+                    }
+                  }
+                }
+                if (table[col][cur] != 0)
+                {
+                  for (int i = cur + 1; i < 4; i++)
+                  {
+                    if (table[col][i] == table[col][cur])
+                    {
+                      table[col][cur] *= 2;
+                      table[col][i] = 0;
+                      break;
+                    }
+                    else if (table[col][i] != table[col][cur] && table[col][i] != 0)
+                      break;
+                  }
+                }
+              }
+            }
+          }
+          if (buttonState[3] == 1)
+          {
+            tone(buzz, 2000, 100);
+            for (int col = 0; col < 4; col++)
+            {
+              for (int cur = 3; cur >= 0; cur--)
+              {
+                if (table[col][cur] == 0)
+                {
+                  for (int i = cur - 1; i >= 0; i--)
+                  {
+                    if (table[col][i] != 0)
+                    {
+                      table[col][cur] = table[col][i];
+                      table[col][i] = 0;
+                      break;
+                    }
+                  }
+                }
+                if (table[col][cur] != 0)
+                {
+                  for (int i = cur - 1; i >= 0; i--)
+                  {
+                    if (table[col][i] == table[col][cur])
+                    {
+                      table[col][cur] *= 2;
+                      table[col][i] = 0;
+                      break;
+                    }
+                    else if (table[col][i] != table[col][cur] && table[col][i] != 0)
+                      break;
+                  }
+                }
+              }
             }
           }
         }
       }
-    }
-    int Down = digitalRead(down);
-    if (Down) // Down
-    {
-      for (int col = 0; col < 4; col++)
-      {
-        for (int cur = 3; cur >= 0; cur--)
-        {
-          if (table[cur][col] == 0)
-          {
-            for (int i = cur - 1; i >= 0; i--)
-            {
-              if (table[i][col] != 0)
-              {
-                table[cur][col] = table[i][col];
-                table[i][col] = 0;
-                break;
-              }
-            }
-          }
-          if (table[cur][col] != 0)
-          {
-            for (int i = cur - 1; i >= 0; i--)
-            {
-              if (table[i][col] == table[cur][col])
-              {
-                table[cur][col] *= 2;
-                table[i][col] = 0;
-                break;
-              }
-              else if (table[i][col] != table[cur][col] && table[i][col] != 0)
-                break;
-            }
-          }
-        }
-      }
-    }
-    int Left = digitalRead(left);
-    if (Left) // Left
-    {
-      for (int col = 0; col < 4; col++)
-      {
-        for (int cur = 0; cur < 4; cur++)
-        {
-          if (table[col][cur] == 0)
-          {
-            for (int i = cur + 1; i < 4; i++)
-            {
-              if (table[col][i] != 0)
-              {
-                table[col][cur] = table[col][i];
-                table[col][i] = 0;
-                break;
-              }
-            }
-          }
-          if (table[col][cur] != 0)
-          {
-            for (int i = cur + 1; i < 4; i++)
-            {
-              if (table[col][i] == table[col][cur])
-              {
-                table[col][cur] *= 2;
-                table[col][i] = 0;
-                break;
-              }
-              else if (table[col][i] != table[col][cur] && table[col][i] != 0)
-                break;
-            }
-          }
-        }
-      }
-    }
-    int Right = digitalRead(right);
-    if (Right) // Right
-    {
-      for (int col = 0; col < 4; col++)
-      {
-        for (int cur = 3; cur >= 0; cur--)
-        {
-          if (table[col][cur] == 0)
-          {
-            for (int i = cur - 1; i >= 0; i--)
-            {
-              if (table[col][i] != 0)
-              {
-                table[col][cur] = table[col][i];
-                table[col][i] = 0;
-                break;
-              }
-            }
-          }
-          if (table[col][cur] != 0)
-          {
-            for (int i = cur - 1; i >= 0; i--)
-            {
-              if (table[col][i] == table[col][cur])
-              {
-                table[col][cur] *= 2;
-                table[col][i] = 0;
-                break;
-              }
-              else if (table[col][i] != table[col][cur] && table[col][i] != 0)
-                break;
-            }
-          }
-        }
-      }
+      lastState[p] = reading;
     }
     same = 1;
     for (int i = 0; i < 4; i++)
@@ -228,12 +244,19 @@ void loop() {
         break;
       }
     }
-    while (table[x][y] != 0 && ran == 1 && same == 0)
-    {
-      x = random(4);
-      y = random(4);
-    }
-    table[x][y] = 2;
+    if (same == 0)
+        {
+            x = rand() % 4 + 1;
+            y = rand() % 4 + 1;
+            while (table[x][y] != 0) // rand2
+            {
+                x = rand() % 4 + 1;
+                y = rand() % 4 + 1;
+                if (table[x][y] == 0)
+                    break;
+            }
+            table[x][y] = 2;
+        }
 
   }
   else if (win == 1)
@@ -245,5 +268,4 @@ void loop() {
     OLED.display();
   }
   OLED.display();
-  delay(50);
 }
