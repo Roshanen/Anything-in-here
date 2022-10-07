@@ -5,12 +5,14 @@
 #define SCREEN_WIDTH 128 // OLED display width, in pixels
 #define SCREEN_HEIGHT 32
 Adafruit_SSD1306 OLED(OLED_RESET);
-int table[4][4] = {{0, 0, 0, 0},
-  {0, 0, 0, 0},
-  {8, 16, 0, 0},
-  {2, 2, 4, 0}
+int table[6][6] = {{0, 0, 0, 0, 0, 0},
+  {0, 1024, 1024, 0, 0, 0},
+  {0, 16, 64, 0, 0, 0},
+  {0, 8, 16, 32, 16, 0},
+  {0, 2, 2, 4, 8, 0},
+  {0, 0, 0, 0, 0, 0}
 };
-int tube[4][4] {0};
+int tube[6][6] {0};
 int buzz = 11;
 int button[4] = {4, 5, 6, 7}; //Up, Down ,Left, Right
 int buttonState[4] = {0, 0, 0, 0};
@@ -38,14 +40,13 @@ void setup() {
   OLED.println("2048 GAME");
 }
 void loop() {
-
-  if (win == 0) {
+  if (win == 0 && movable == 1) {
     OLED.clearDisplay();
     OLED.setCursor(0, 0);
     ran = 0;
-    for (int i = 0; i < 4; i++) // OLED.print
+    for (int i = 1; i < 5; i++) // OLED.print
     {
-      for (int j = 0; j < 4; j++)
+      for (int j = 1; j < 5; j++)
       {
         int bottle = table[i][j];
         for (int k = 0; k < 4; k++) {
@@ -54,22 +55,20 @@ void loop() {
           bottle /= 10;
         }
         OLED.print(table[i][j]);
-        if (table[i][j] == 0)
-          ran = 1;
         tube[i][j] = table[i][j];
       }
       OLED.print("\n");
     }
     movable = 0;
-    for (int i = 0; i < 4; i++) // check movable
+    for (int i = 1; i < 5; i++) // check movable
     {
-      for (int j = 0; j < 4; j++)
+      for (int j = 1; j < 5; j++)
       {
         if (table[i][j] == 0 ||
-            (table[i + 1][j] == table[i][j] && (i + 1) < 4) ||
-            (table[i - 1][j] == table[i][j] && (i - 1) >= 0) ||
-            (table[i][j + 1] == table[i][j] && (j + 1) < 4) ||
-            (table[i][j - 1] == table[i][j] && (j - 1) >= 0))
+            (table[i + 1][j] == table[i][j]) ||
+            (table[i - 1][j] == table[i][j]) ||
+            (table[i][j + 1] == table[i][j]) ||
+            (table[i][j - 1] == table[i][j]))
         {
           movable = 1;
           break;
@@ -89,13 +88,13 @@ void loop() {
           {
             tone(buzz, 2000, 100);
             Serial.println("dog");
-            for (int col = 0; col < 4; col++)
+            for (int col = 1; col < 5; col++)
             {
-              for (int cur = 0; cur < 4; cur++)
+              for (int cur = 1; cur < 5; cur++)
               {
                 if (table[cur][col] == 0)
                 {
-                  for (int i = cur + 1; i < 4; i++)
+                  for (int i = cur + 1; i < 5; i++)
                   {
                     if (table[i][col] != 0)
                     {
@@ -107,11 +106,13 @@ void loop() {
                 }
                 if (table[cur][col] != 0)
                 {
-                  for (int i = cur + 1; i < 4; i++)
+                  for (int i = cur + 1; i < 5; i++)
                   {
                     if (table[i][col] == table[cur][col])
                     {
                       table[cur][col] *= 2;
+                      if (table[cur][col] == 2048)
+                        win = 1;
                       table[i][col] = 0;
                       break;
                     }
@@ -125,13 +126,13 @@ void loop() {
           if (buttonState[1] == 1)
           {
             tone(buzz, 2000, 100);
-            for (int col = 0; col < 4; col++)
+            for (int col = 1; col < 5; col++)
             {
-              for (int cur = 3; cur >= 0; cur--)
+              for (int cur = 4; cur >= 1; cur--)
               {
                 if (table[cur][col] == 0)
                 {
-                  for (int i = cur - 1; i >= 0; i--)
+                  for (int i = cur - 1; i >= 1; i--)
                   {
                     if (table[i][col] != 0)
                     {
@@ -143,11 +144,13 @@ void loop() {
                 }
                 if (table[cur][col] != 0)
                 {
-                  for (int i = cur - 1; i >= 0; i--)
+                  for (int i = cur - 1; i >= 1; i--)
                   {
                     if (table[i][col] == table[cur][col])
                     {
                       table[cur][col] *= 2;
+                      if (table[cur][col] == 2048)
+                        win = 1;
                       table[i][col] = 0;
                       break;
                     }
@@ -161,13 +164,13 @@ void loop() {
           if (buttonState[2] == 1)
           {
             tone(buzz, 2000, 100);
-            for (int col = 0; col < 4; col++)
+            for (int col = 1; col < 5; col++)
             {
-              for (int cur = 0; cur < 4; cur++)
+              for (int cur = 1; cur < 5; cur++)
               {
                 if (table[col][cur] == 0)
                 {
-                  for (int i = cur + 1; i < 4; i++)
+                  for (int i = cur + 1; i < 5; i++)
                   {
                     if (table[col][i] != 0)
                     {
@@ -179,11 +182,13 @@ void loop() {
                 }
                 if (table[col][cur] != 0)
                 {
-                  for (int i = cur + 1; i < 4; i++)
+                  for (int i = cur + 1; i < 5; i++)
                   {
                     if (table[col][i] == table[col][cur])
                     {
                       table[col][cur] *= 2;
+                      if (table[col][cur] == 2048)
+                        win = 1;
                       table[col][i] = 0;
                       break;
                     }
@@ -197,13 +202,13 @@ void loop() {
           if (buttonState[3] == 1)
           {
             tone(buzz, 2000, 100);
-            for (int col = 0; col < 4; col++)
+            for (int col = 1; col < 5; col++)
             {
-              for (int cur = 3; cur >= 0; cur--)
+              for (int cur = 4; cur >= 1; cur--)
               {
                 if (table[col][cur] == 0)
                 {
-                  for (int i = cur - 1; i >= 0; i--)
+                  for (int i = cur - 1; i >= 1; i--)
                   {
                     if (table[col][i] != 0)
                     {
@@ -215,11 +220,13 @@ void loop() {
                 }
                 if (table[col][cur] != 0)
                 {
-                  for (int i = cur - 1; i >= 0; i--)
+                  for (int i = cur - 1; i >= 1; i--)
                   {
                     if (table[col][i] == table[col][cur])
                     {
                       table[col][cur] *= 2;
+                      if (table[col][cur] == 2048)
+                        win = 1;
                       table[col][i] = 0;
                       break;
                     }
@@ -235,28 +242,29 @@ void loop() {
       lastState[p] = reading;
     }
     same = 1;
-    for (int i = 0; i < 4; i++)
+    for (int i = 1; i < 5; i++)
     {
-      for (int j = 0; j < 4; j++)
+      for (int j = 1; j < 5; j++)
       {
         if (table[i][j] != tube[i][j])
-          same = 0;
-        break;
+        { same = 0;
+          break;
+        }
       }
     }
+    x = rand() % 4 + 1;
+    y = rand() % 4 + 1;
     if (same == 0)
-        {
-            x = rand() % 4 + 1;
-            y = rand() % 4 + 1;
-            while (table[x][y] != 0) // rand2
-            {
-                x = rand() % 4 + 1;
-                y = rand() % 4 + 1;
-                if (table[x][y] == 0)
-                    break;
-            }
-            table[x][y] = 2;
-        }
+    {
+      while (table[x][y] != 0) // rand2
+      {
+        x = rand() % 4 + 1;
+        y = rand() % 4 + 1;
+        if (table[x][y] == 0)
+          break;
+      }
+      table[x][y] = 2;
+    }
 
   }
   else if (win == 1)
@@ -266,6 +274,37 @@ void loop() {
     OLED.println(" YOU WIN");
     OLED.print(" 2048 GAME.");
     OLED.display();
+    win = 0;
+    movable = 1;
+    delay(5000);
+    for (int i = 1; i < 5 ; i++)
+    {
+      for (int j = 1 ; j < 5; j++)
+        table[i][j] = 0;
+    }
+    table[x][y] = 2;
+    x = rand() % 4 + 1;
+    y = rand() % 4 + 1;
+    table[x][y] = 2;
+  }
+  else if (movable == 0)
+  {
+    OLED.clearDisplay();
+    OLED.setCursor(8, 10);
+    OLED.println("NICE TRY");
+    OLED.display();
+    win = 0;
+    movable = 1;
+    delay(5000);
+    for (int i = 1; i < 5 ; i++)
+    {
+      for (int j = 1 ; j < 5; j++)
+        table[i][j] = 0;
+    }
+    table[x][y] = 2;
+    x = rand() % 4 + 1;
+    y = rand() % 4 + 1;
+    table[x][y] = 2;
   }
   OLED.display();
 }
