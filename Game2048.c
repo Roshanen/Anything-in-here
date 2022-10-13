@@ -94,7 +94,7 @@ int main()
     {
         set_table();
         win = 0;
-        while (movable() == 1 && win == 0)
+        while (movable() == 1 || zero() == 1)
         {
             print_table();
             kb = ' ';
@@ -257,7 +257,9 @@ int main()
                     }
                 }
             }
-            if (zero() == 1)
+            if (win == 1)
+                break;
+            if (zero() == 1 && same() == 0)
                 random2();
         }
         if (win == 1)
