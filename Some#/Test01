@@ -1,0 +1,129 @@
+//2 thread
+using System;
+using System.ComponentModel;
+using System.Diagnostics;
+using System.IO;
+using System.Runtime.InteropServices;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Formatters.Binary;
+using System.Threading;
+
+namespace Problem01
+{
+    class Program
+    {
+        static byte[] Data_Global = new byte[1000000000];
+        static long Sum_Global = 0;
+        static int G_index = 0;
+        static readonly int NumThreads = 10;
+        static Thread[] threads = new Thread[NumThreads];
+        static long[] threadSlots = new long[NumThreads];
+        static readonly int WorkPerThread = Data_Global.Length / NumThreads;
+        static int ReadData()
+        {
+            int returnData = 0;
+            FileStream fs = new FileStream("Problem01.dat", FileMode.Open);
+            BinaryFormatter bf = new BinaryFormatter();
+
+            try
+            {
+                Data_Global = (byte[])bf.Deserialize(fs);
+            }
+            catch (SerializationException se)
+            {
+                Console.WriteLine("Read Failed:" + se.Message);
+                returnData = 1;
+            }
+            finally
+            {
+                fs.Close();
+            }
+
+            return returnData;
+        }
+        static void sum(object curThread)
+        {
+            int cur = (int)curThread;
+            int start = cur * WorkPerThread;
+            long[] resultMap = new long[10];
+            long sum = 0;
+
+            for (int i = start; i < start + WorkPerThread; i++)
+            {
+                int data = Data_Global[i];
+                if (resultMap[data] != 0)
+                {
+                    sum += resultMap[data];
+                    continue;
+                }
+                if (data % 2 == 0)
+                {
+                    resultMap[data] = -data;
+                }
+                else if (data % 3 == 0)
+                {
+                    resultMap[data] = data * 2;
+                }
+                else if (data % 5 == 0)
+                {
+                    resultMap[data] = data / 2;
+                }
+                else if (data % 7 == 0)
+                {
+                    resultMap[data] = data / 3;
+                }
+                sum += resultMap[Data_Global[i]];
+                Data_Global[i] = 0;
+            }
+            //Sum_Global += sum;
+            threadSlots[cur] = sum;
+            //Interlocked.Add(ref sum, Sum_Global);
+        }
+        static void Main(string[] args)
+        {
+            Stopwatch sw = new Stopwatch();
+            int y;
+
+            /* Read data from file */
+            Console.Write("Data read...");
+            y = ReadData();
+            if (y == 0)
+            {
+                Console.WriteLine("Complete.");
+            }
+            else
+            {
+                Console.WriteLine("Read Failed!");
+            }
+
+            /* Create 2 threads */
+            for (int i = 0; i < NumThreads; i++)
+            {
+                threads[i] = new Thread(sum);
+            }
+
+            /* Start */
+            Console.Write("\n\nWorking...");
+            sw.Start();
+
+            for (int i = 0; i < NumThreads; i++)
+            {
+                threads[i].Start(i);
+            }
+            for (int i = 0; i < NumThreads; i++)
+            {
+                threads[i].Join();
+            }
+            for (int i = 0; i < NumThreads; i++)
+            {
+                Sum_Global += threadSlots[i];
+            }
+            sw.Stop();
+            Console.WriteLine("Done.");
+
+            /* Result */
+            Console.WriteLine("Calculation result: {0}: {1}", Sum_Global, 888701676 == Sum_Global);
+            Console.WriteLine("Time used: " + sw.ElapsedMilliseconds.ToString() + "ms");
+        }
+    }
+}
